@@ -45,7 +45,7 @@ public final class ElevatorControllerEndPoints {
         return elevatorController.getElevators();
     }
     
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addElevatorToControl(@RequestBody ElevatorImpl elevator) {
     	 elevatorController.addElevatorToControl(elevator);
     }
@@ -56,10 +56,11 @@ public final class ElevatorControllerEndPoints {
     	return "Released elevator #" + elevator.getId();    
     }
     
-    @PutMapping("/{floor}")
-    public @ResponseBody String requestElevator(@PathVariable("floor") int toFloor) {
+    @PutMapping("/request/{fromFloor}/{toFloor}")
+    public @ResponseBody String requestElevator(@PathVariable("fromFloor") int fromFloor, @PathVariable("toFloor") int toFloor) {
+    	elevatorController.setWaitingFloor(fromFloor);
     	Elevator requestedElevator = elevatorController.requestElevator(toFloor);
-    	return String.format("Elevator #%b sent to floor%d", requestedElevator.getId(), toFloor);
+    	return String.format("Elevator #%d sent to floor %d", requestedElevator.getId(), toFloor) + requestedElevator.getFloorsToStopAt();
     }
     
     @DeleteMapping("/delete/{id}")

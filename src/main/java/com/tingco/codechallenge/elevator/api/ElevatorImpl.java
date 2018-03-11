@@ -1,30 +1,31 @@
 package com.tingco.codechallenge.elevator.api;
 
-import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+
+@Component
 public class ElevatorImpl implements Elevator{
 	
-		private Direction direction;
+		private int id;	
 		private int currentFloor;
-		private int addressedFloor;
-		private int id;
 		private boolean isBusy;
-		private SortedSet<Integer> floorsToStopAt = new TreeSet<>();
+		private Direction direction;
+		private int addressedFloor;
+		private SortedSet<Integer> floorsToStopAt;
 		
 		public ElevatorImpl() {}
 		
-		public ElevatorImpl(int id, int currentFloor, int addressedFloor, boolean isBusy) {
-			this.id = id;
+		public ElevatorImpl(int currentFloor) {
 			this.currentFloor = currentFloor;
-			this.addressedFloor = addressedFloor;
-			this.isBusy = isBusy;
+			isBusy = false;
 			direction = Direction.NONE;
+			addressedFloor = 0;
+			floorsToStopAt = new TreeSet<>();
 		}
+		
 		/**
 	     * Tells which direction is the elevator going in.
 	     *
@@ -63,23 +64,53 @@ public class ElevatorImpl implements Elevator{
 	     */
 		@Override
 		public void moveElevator(int toFloor) {
-				if(!isBusy()) {
-						setAddressedFloor(toFloor);
-						if(currentFloor == toFloor)
-								return;
-						if(currentFloor > toFloor)
-								setDirection(Direction.UP);
-						else
-								setDirection(Direction.DOWN);
+			if(currentFloor == toFloor)
+				return;
+			
+			if(floorsToStopAt.size() > 0) {									
+					if(currentFloor > addressedFloor) {
+							setAddressedFloor(floorsToStopAt.last());		
+							setDirection(Direction.DOWN);
+					} else {
+							setAddressedFloor(floorsToStopAt.first());					
+							setDirection(Direction.UP);
+					}
+					if(!isBusy)
 						setBusy(true);
-				}	
+					
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					floorsToStopAt.remove(addressedFloor);
+					currentFloor = addressedFloor;
+					moveElevator(toFloor) ;
+			}
+			
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			currentFloor = toFloor;
 		}
 		
-		public void addFloorToStopAt(int floor) {
-			floorsToStopAt.add(floor);
+		@Override
+		public void addFloorToStopAt(Integer floor) {
+			if(floorsToStopAt == null)
+				floorsToStopAt = new TreeSet<>();
+			if(floor != null)
+				floorsToStopAt.add(floor);
 		}
 	
-		 /**
+		@Override
+		 public SortedSet<Integer> getFloorsToStopAt() {
+			return floorsToStopAt;
+		}
+
+		/**
 	     * Check if the elevator is occupied at the moment.
 	     *
 	     * @return true if busy.
@@ -99,22 +130,27 @@ public class ElevatorImpl implements Elevator{
 			return currentFloor;
 		}
 	
+		@Override
 		public void setDirection(Direction direction) {
 			this.direction = direction;
 		}
 	
+		@Override
 		public void setCurrentFloor(int currentFloor) {
 			this.currentFloor = currentFloor;
 		}
 	
+		@Override
 		public void setAddressedFloor(int addressedFloor) {
 			this.addressedFloor = addressedFloor;
 		}
 	
+		@Override
 		public void setId(int id) {
 			this.id = id;
 		}
 	
+		@Override
 		public void setBusy(boolean isBusy) {
 			this.isBusy = isBusy;
 		}

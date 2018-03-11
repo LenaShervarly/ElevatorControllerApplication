@@ -1,6 +1,6 @@
 package com.tingco.codechallenge.elevator.api;
 
-import com.tingco.codechallenge.elevator.api.Elevator.Direction;
+import java.util.SortedSet;
 
 /**
  * Interface for an elevator object.
@@ -14,7 +14,12 @@ public interface Elevator {
      * Enumeration for describing elevator's direction.
      */
     enum Direction {
-        UP, DOWN, NONE
+        UP("up"), DOWN("down"), NONE("none");
+        
+        private String name;
+        private Direction(String name) {
+        	this.name = name;
+        }
     }
 
     /**
@@ -70,5 +75,7 @@ public interface Elevator {
     
     void setDirection(Direction direction);
     
-    void addFloorToStopAt(int floor);
+    void addFloorToStopAt(Integer floor);
+
+	SortedSet<Integer> getFloorsToStopAt();
 }
