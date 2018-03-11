@@ -1,11 +1,13 @@
 package com.tingco.codechallenge.elevator.config;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +16,17 @@ import org.springframework.context.annotation.PropertySources;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.tingco.codechallenge.elevator.api.Elevator;
+import com.tingco.codechallenge.elevator.api.ElevatorController;
+import com.tingco.codechallenge.elevator.api.ElevatorControllerImpl;
 
 /**
  * Preconfigured Spring Application boot class.
  *
  */
+@SpringBootApplication(scanBasePackages={"com.tingco.codechallenge.elevator.api", "com.tingco.codechallenge.elevator.resources"})
 @Configuration
-@ComponentScan(basePackages = { "com.tingco.codechallenge.elevator" })
+@ComponentScan(basePackages = { "com.tingco.codechallenge.elevator.*" })
 @EnableAutoConfiguration
 @PropertySources({ @PropertySource("classpath:application.properties") })
 public class ElevatorApplication {
@@ -28,6 +34,7 @@ public class ElevatorApplication {
     @Value("${com.tingco.elevator.numberofelevators}")
     private int numberOfElevators;
 
+    
     /**
      * Start method that will be invoked when starting the Spring context.
      *
@@ -38,6 +45,10 @@ public class ElevatorApplication {
         SpringApplication.run(ElevatorApplication.class, args);
     }
 
+//    @Bean
+//    public ElevatorController getElevatorController() {
+//    	return new ElevatorControllerImpl(); 
+//    }
     /**
      * Create a default thread pool for your convenience.
      *

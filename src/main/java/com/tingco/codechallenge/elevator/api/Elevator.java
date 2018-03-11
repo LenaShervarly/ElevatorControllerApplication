@@ -1,12 +1,14 @@
 package com.tingco.codechallenge.elevator.api;
 
+import com.tingco.codechallenge.elevator.api.Elevator.Direction;
+
 /**
  * Interface for an elevator object.
  *
  * @author Sven Wesley
  *
  */
-interface Elevator {
+public interface Elevator {
 
     /**
      * Enumeration for describing elevator's direction.
@@ -58,4 +60,15 @@ interface Elevator {
      */
     int currentFloor();
 
+    void setBusy(boolean isBusy);
+    
+    void setId(int id);
+    
+    void setAddressedFloor(int addressedFloor) ;
+    
+    void setCurrentFloor(int currentFloor);
+    
+    void setDirection(Direction direction);
+    
+    void addFloorToStopAt(int floor);
 }
