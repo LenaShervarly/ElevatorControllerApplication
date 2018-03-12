@@ -2,6 +2,8 @@ package com.tingco.codechallenge.elevator.api;
 
 import java.util.List;
 
+import com.tingco.codechallenge.elevator.api.Elevator.Direction;
+
 
 /**
  * Interface for the Elevator Controller.
@@ -19,6 +21,17 @@ public interface ElevatorController {
      * @return The Elevator that is going to the floor, if there is one to move.
      */
     Elevator requestElevator(int toFloor);
+    
+    /**
+     * Request an elevator to the specified floor in the specified direction. Version of request that could be expected 
+     * in modern buildings with 2 buttons "Up" and "Down"
+     *
+     * @param direction indicates the direction in which the elevator is requested
+     * @param toFloor
+     *            addressed floor as integer.
+     * @return The Elevator that is going to the floor, if there is one to move.
+     */
+    Elevator requestElevator(Direction direction, int toFloor);
 
     /**
      * A snapshot list of all elevators in the system.
@@ -36,8 +49,16 @@ public interface ElevatorController {
      */
     void releaseElevator(Elevator elevator);
 
-	void addElevatorToControl(Elevator elevator);
+    /**
+     *  Adding an elevator to the list of elevators under control of the elevator controller
+     * @param elevator to be added to control list
+     */
+    Elevator addElevatorToControl(Elevator elevator);
 
+	/**
+	 * Removing an elevator from the list under control of the elevator controller
+	 * @param id of the elevator to be deleted
+	 */
 	void deleteElevatorFromControlById(int id);
 
 }

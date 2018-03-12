@@ -26,42 +26,25 @@ public class ElevatorImpl implements Elevator{
 			floorsToStopAt = new TreeSet<>();
 		}
 		
-		/**
-	     * Tells which direction is the elevator going in.
-	     *
-	     * @return Direction Enumeration value describing the direction.
-	     */
+
 		@Override
 		public Direction getDirection() {
 			return direction;
 		}
 	
-		/**
-	     * If the elevator is moving. This is the target floor.
-	     *
-	     * @return primitive integer number of floor
-	     */
+
 		@Override
 		public int getAddressedFloor() {
 			return addressedFloor;
 		}
 	
-		/**
-	     * Get the Id of this elevator.
-	     *
-	     * @return primitive integer representing the elevator.
-	     */
+
 		@Override
 		public int getId() {
 			return id;
 		}
 	
-	    /**
-	     * Command to move the elevator to the given floor.
-	     *
-	     * @param toFloor
-	     *            int where to go.
-	     */
+
 		@Override
 		public void moveElevator(int toFloor) {
 			if(currentFloor == toFloor)
@@ -81,7 +64,7 @@ public class ElevatorImpl implements Elevator{
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						System.out.println(" InterruptedException was catched  inside moveElevator(), while making a couple of stops " + e);
 					}
 					
 					floorsToStopAt.remove(addressedFloor);
@@ -92,7 +75,7 @@ public class ElevatorImpl implements Elevator{
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("InterruptedException was catched  inside moveElevator() " + e);
 			}
 			currentFloor = toFloor;
 		}
@@ -110,21 +93,13 @@ public class ElevatorImpl implements Elevator{
 			return floorsToStopAt;
 		}
 
-		/**
-	     * Check if the elevator is occupied at the moment.
-	     *
-	     * @return true if busy.
-	     */
+		
 		@Override
 		public boolean isBusy() {
 			return isBusy;
 		}
 	
-		/**
-	     * Reports which floor the elevator is at right now.
-	     *
-	     * @return int actual floor at the moment.
-	     */
+		
 		@Override
 		public int currentFloor() {
 			return currentFloor;
