@@ -103,7 +103,7 @@ public final class ElevatorControllerEndPoints {
     public @ResponseBody String requestElevator(@PathVariable("direction") String direction, @PathVariable("toFloor") int toFloor) {
     	elevatorController.requestElevator(Direction.valueOf(direction.toUpperCase()), toFloor);  	
     	return "Elevator is sent to floor " + toFloor; 
-    }
+    }	
     
     /**
 	 * Removing an elevator based on its id
