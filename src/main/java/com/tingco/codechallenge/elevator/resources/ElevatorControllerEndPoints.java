@@ -20,7 +20,6 @@ import com.tingco.codechallenge.elevator.api.ElevatorImpl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.tingco.codechallenge.elevator.api.Elevator;
@@ -49,43 +48,70 @@ public final class ElevatorControllerEndPoints {
         return "pong";
     }
     
+    /**
+     * Get the list of all connected elevators
+     * @return list of all connected elevators
+     */
     @GetMapping
     public List<Elevator> getAllElevators(){
         return elevatorController.getElevators();
     }
     
+    /**
+     * Add a new elevator to the list of all connected elevators
+     * @param new elevator to be added
+     * @return initialized elevator with all default parameters
+     */
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Elevator addElevatorToControl(@RequestBody ElevatorImpl elevator) {
-    	return elevatorController.addElevatorToControl(elevator); 	  
+    	return elevatorController.addElevatorToList(elevator); 	  
     }
     
+    /**
+     * Releasing elevator from all possible tasks  
+     * @param elevator to be released
+     */
     @PutMapping("/release")
-    public @ResponseBody String releaseElevator(@RequestBody ElevatorImpl elevator) {
+    @ResponseStatus(HttpStatus.OK)
+    public void releaseElevator(@RequestBody ElevatorImpl elevator) {
     	elevatorController.releaseElevator(elevator);
-    	return "Released elevator #" + elevator.getId();    
     }
     
+    /**
+     * Simple request option to the specified floor
+     * @param toFloor to which the elevator is requested
+     * @return confirmation that elevator was sent
+     */
     @PutMapping("/request/{toFloor}")
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody String requestElevator(@PathVariable("toFloor") int toFloor) {
     	Elevator requestedElevator = elevatorController.requestElevator(toFloor);
-    	return String.format("Elevator #%d sent to floor %d", requestedElevator.getId(), toFloor);
+    	return "Elevator is sent to floor " + toFloor; 
     }
     
+    /**
+     * Request an elevator to the specified floor in the specified direction. Version of request that could be expected 
+     * in modern buildings with 2 buttons "Up" and "Down"
+     *
+     * @param direction indicates the direction in which the elevator is requested
+     * @param toFloor,  addressed floor as integer.
+     * @return confirmation that elevator was sent
+     */
     @PutMapping("/request/{direction}/{toFloor}")
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody String requestElevator(@PathVariable("direction") String direction, @PathVariable("toFloor") int toFloor) {
-    	Elevator requestedElevator = elevatorController.requestElevator(Direction.valueOf(direction.toUpperCase()), toFloor);
-    	if(requestedElevator == null)
-    		return "elevator is null";
-    	else if(requestedElevator.getId()>=0)
-    		return "id is " + requestedElevator.getId();
-    	else
-    		return "Elevator is sent to floor " + toFloor; // + requestedElevator.getId();//String.format("Elevator #%d sent to floor %d", requestedElevator.getId(), toFloor) + requestedElevator.getFloorsToStopAt();
+    	elevatorController.requestElevator(Direction.valueOf(direction.toUpperCase()), toFloor);  	
+    	return "Elevator is sent to floor " + toFloor; 
     }
     
+    /**
+	 * Removing an elevator based on its id
+	 * @param id of the elevator to be deleted
+	 */
     @DeleteMapping("/delete/{id}")
-    public @ResponseBody String deleteElevatorByid(@PathVariable("id") int id) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteElevatorByid(@PathVariable("id") int id) {
     	elevatorController.deleteElevatorFromControlById(id);
-    	return "Deleted elevator #" + id;    	
     }
 }

@@ -14,20 +14,7 @@ public interface Elevator {
      * Enumeration for describing elevator's direction.
      */
     enum Direction {
-        UP("up"), DOWN("down"), NONE("none");
-        
-        private String name;
-     
-		private Direction(String name) {
-        	this.name = name;
-        }
-		
-		   public String getName() {
-				return name;
-			}
-			public void setName(String name) {
-				this.name = name;
-			}
+        UP, DOWN, NONE;
     }
 
     /**

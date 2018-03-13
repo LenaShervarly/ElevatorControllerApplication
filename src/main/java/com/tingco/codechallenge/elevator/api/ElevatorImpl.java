@@ -1,5 +1,6 @@
 package com.tingco.codechallenge.elevator.api;
 
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Component;
 public class ElevatorImpl implements Elevator{
 	
 		private int id;	
-		private int currentFloor;
-		private boolean isBusy;
-		private Direction direction;
-		private int addressedFloor;
+		private volatile int currentFloor;
+		private volatile boolean isBusy;
+		private volatile Direction direction;
+		private volatile int addressedFloor;
 		private SortedSet<Integer> floorsToStopAt;
 		
 		public ElevatorImpl() {}
@@ -23,7 +24,7 @@ public class ElevatorImpl implements Elevator{
 			isBusy = false;
 			direction = Direction.NONE;
 			addressedFloor = 0;
-			floorsToStopAt = new TreeSet<>();
+			floorsToStopAt = Collections.synchronizedSortedSet(new TreeSet<Integer>());
 		}
 		
 
@@ -47,8 +48,12 @@ public class ElevatorImpl implements Elevator{
 
 		@Override
 		public void moveElevator(int toFloor) {
-			if(currentFloor == toFloor)
+			if(currentFloor == toFloor) {
+				setBusy(false);
 				return;
+			}
+			
+			addressedFloor = toFloor;
 			
 			if(floorsToStopAt.size() > 0) {									
 					if(currentFloor > addressedFloor) {
@@ -58,9 +63,11 @@ public class ElevatorImpl implements Elevator{
 							setAddressedFloor(floorsToStopAt.first());					
 							setDirection(Direction.UP);
 					}
+					
 					if(!isBusy)
 						setBusy(true);
 					
+					//Imitating movement of the elevator, in future should be definied based on distase between floors and speed of the elevator
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
@@ -71,19 +78,13 @@ public class ElevatorImpl implements Elevator{
 					currentFloor = addressedFloor;
 					moveElevator(toFloor) ;
 			}
-			
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				System.out.println("InterruptedException was catched  inside moveElevator() " + e);
-			}
 			currentFloor = toFloor;
 		}
 		
 		@Override
 		public void addFloorToStopAt(Integer floor) {
 			if(floorsToStopAt == null)
-				floorsToStopAt = new TreeSet<>();
+				floorsToStopAt = Collections.synchronizedSortedSet(new TreeSet<Integer>());
 			if(floor != null)
 				floorsToStopAt.add(floor);
 		}

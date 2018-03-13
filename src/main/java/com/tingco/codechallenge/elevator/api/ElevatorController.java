@@ -53,10 +53,10 @@ public interface ElevatorController {
      *  Adding an elevator to the list of elevators under control of the elevator controller
      * @param elevator to be added to control list
      */
-    Elevator addElevatorToControl(Elevator elevator);
+    Elevator addElevatorToList(Elevator elevator);
 
 	/**
-	 * Removing an elevator from the list under control of the elevator controller
+	 * Removing an elevator from the control of the elevator controller by providing id 
 	 * @param id of the elevator to be deleted
 	 */
 	void deleteElevatorFromControlById(int id);

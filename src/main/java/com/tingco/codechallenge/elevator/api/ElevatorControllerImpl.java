@@ -17,20 +17,12 @@ import com.tingco.codechallenge.elevator.api.Elevator.Direction;
 public class ElevatorControllerImpl implements ElevatorController{
 	
 	private static List<Elevator> elevators = new ArrayList<>();	
-	//private int waitingFloor = 0;
-
+	private static int lastAddedElevatorId = 0;
 
 	@Override
 	@Async
 	public Elevator requestElevator(int toFloor) {
 		Elevator requestedElevator = findClosestFreeElevator(toFloor);
-		
-//		if(requestedElevetor == null) {		
-//			if(waitingFloor > toFloor)
-//				requestedElevetor = findClosestMovingElevator(toFloor, Direction.DOWN);
-//			else
-//				requestedElevetor = findClosestMovingElevator(toFloor, Direction.UP);
-//		}
 
 		moveElevator(toFloor, requestedElevator);		
 		return requestedElevator;
@@ -41,11 +33,17 @@ public class ElevatorControllerImpl implements ElevatorController{
 	public Elevator requestElevator(Direction requestedDirection, int toFloor) {
 		Elevator requestedElevator = findClosestFreeElevator(toFloor);
 		
-		if(requestedElevator == null) {		
-			if(requestedDirection == Direction.DOWN)
-				requestedElevator = findClosestMovingElevator(toFloor, Direction.DOWN);
-			else
-				requestedElevator = findClosestMovingElevator(toFloor, Direction.UP);
+		if(requestedElevator == null)		
+				requestedElevator = findClosestMovingElevator(toFloor, requestedDirection);
+		
+		if(requestedElevator == null) {
+			//wait a little bit and try sending a request again
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println("request was interupted");
+			}
+			requestElevator(requestedDirection, toFloor);
 		}
 		
 		moveElevator(toFloor, requestedElevator);
@@ -62,7 +60,6 @@ public class ElevatorControllerImpl implements ElevatorController{
 		if(requestedElevator != null) 	{
 			requestedElevator.addFloorToStopAt(Integer.valueOf(toFloor));
 			requestedElevator.moveElevator(toFloor);
-			elevators.set(requestedElevator.getId(), requestedElevator);
 		}							
 	}
 
@@ -97,7 +94,7 @@ public class ElevatorControllerImpl implements ElevatorController{
 					} else
 						return false;						
 				})
-				.min(closest(toFloor)).get();
+				.min(closest(toFloor)).orElse(null);
 	}
 	
 	/**
@@ -137,13 +134,11 @@ public class ElevatorControllerImpl implements ElevatorController{
 		Elevator elevatorToRelease = findElevatorById(elevator.getId());
 		elevatorToRelease.setBusy(false);
 		elevatorToRelease.setDirection(Direction.NONE);
-		elevators.set(elevator.getId(), elevatorToRelease);
 	}
 	
 	@Override
-	public Elevator addElevatorToControl(Elevator elevator) {
-		int newId = elevators.size();
-		elevator.setId(newId);
+	public Elevator addElevatorToList(Elevator elevator) {
+		elevator.setId(lastAddedElevatorId++);
 		elevators.add(elevator);
 		return elevator;
 	}
@@ -153,11 +148,4 @@ public class ElevatorControllerImpl implements ElevatorController{
 		elevators.removeIf(e -> (e.getId() == id));
 	}
 
-//	public int getWaitingFloor() {
-//		return waitingFloor;
-//	}
-//
-//	public void setWaitingFloor(int requestedFloor) {
-//		this.waitingFloor = requestedFloor;
-//	}
 }
