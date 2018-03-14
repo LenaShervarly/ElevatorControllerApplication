@@ -24,41 +24,29 @@ public class ElevatorControllerImpl implements ElevatorController{
 	public Elevator requestElevator(int toFloor) {
 		Elevator requestedElevator = findClosestFreeElevator(toFloor);
 
-		moveElevator(toFloor, requestedElevator);		
+		moveElevator(toFloor, requestedElevator, null);		
 		return requestedElevator;
 	}
 
 	@Override
 	@Async
 	public Elevator requestElevator(Direction requestedDirection, int toFloor) {
-		Elevator requestedElevator = findClosestFreeElevator(toFloor);
+		Elevator requestedElevator = findElevatorWithMinDistanse(toFloor, requestedDirection);
 		
-		if(requestedElevator == null)		
-				requestedElevator = findClosestMovingElevator(toFloor, requestedDirection);
-		
-		if(requestedElevator == null) {
-			//wait a little bit and try sending a request again
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				System.out.println("request was interupted");
-			}
-			requestElevator(requestedDirection, toFloor);
-		}
-		
-		moveElevator(toFloor, requestedElevator);
+		moveElevator(toFloor, requestedElevator, requestedDirection);
 	
 		return requestedElevator;
 	}
 	
+
 	/**
 	 * Sending the requested elevator to the specified floor
 	 * @param toFloor specified floor to move to
 	 * @param requestedElevator elevator that should be moved
 	 */
-	private void moveElevator(int toFloor, Elevator requestedElevator) {
+	private void moveElevator(int toFloor, Elevator requestedElevator, Direction requestedDirection) {
 		if(requestedElevator != null) 	{
-			requestedElevator.addFloorToStopAt(Integer.valueOf(toFloor));
+			requestedElevator.addFloorToStopAt(Integer.valueOf(toFloor), requestedDirection);
 			requestedElevator.moveElevator(toFloor);
 		}							
 	}
@@ -76,6 +64,23 @@ public class ElevatorControllerImpl implements ElevatorController{
 		        })
 		        .get();
 	}
+	
+	/**
+	 * Find the closest elevator with a minimum number of Floors to pass to reach the destination
+	 * @param toFloor specified floor to move to
+	 * @param direction specified direction to move in
+	 * @return  the closest elevator that will take the request
+	 */
+	private Elevator findElevatorWithMinDistanse(int toFloor, Direction requestedDirection) {
+		return elevators.stream()
+				.min(new Comparator<Elevator>() {
+					@Override
+					public int compare(Elevator e1, Elevator e2) {
+						return e1.getNumberOfPassedFloorsTill(requestedDirection, toFloor) 
+								- e2.getNumberOfPassedFloorsTill(requestedDirection, toFloor);
+					};
+				}).get();
+	}
 
 	/**
 	 * Find the closest elevator that is moving on the specified direction and can add toFloor to the list of its stops
@@ -83,7 +88,7 @@ public class ElevatorControllerImpl implements ElevatorController{
 	 * @param direction specified direction to move in
 	 * @return  the closest elevator that is moving on the specified direction and can add toFloor to the list of its stops
 	 */
-	private Elevator findClosestMovingElevator(int toFloor, Direction direction) {
+	private Elevator findClosestMovingElevatorInTheSameDirection(int toFloor, Direction direction) {
 		return elevators.stream()
 				.filter(e -> {
 					if(e.getDirection() == direction) {
